@@ -1,0 +1,47 @@
+# /home/ingeniero/Documents/gitRepository/udemy/k6/project-final-kubernates-v001/shared/server-mock:/mnt/files
+# minikube mount /home/ingeniero/Documents/gitRepository/udemy/k6/project-final-kubernates-v001/kubernates:/www
+
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ejemplo-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/files"  # Ruta local en el nodo
+  persistentVolumeReclaimPolicy: Retain
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ejemplo-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: ejemplo-pod
+# spec:
+#   containers:
+#   - name: ejemplo-container
+#     image: nginx
+#     volumeMounts:
+#     - mountPath: "/usr/share/nginx/html"  # Carpeta en el pod
+#       name: ejemplo-volumen
+#   volumes:
+#   - name: ejemplo-volumen
+#     persistentVolumeClaim:
+#       claimName: ejemplo-pvc
+
+
