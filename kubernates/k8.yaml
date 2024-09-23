@@ -61,6 +61,7 @@ spec:
             value: prod
           - name: GAMES_HOST
             value: http://mockserver:3100  
+        imagePullPolicy: Always
 
 ---
 apiVersion: apps/v1
