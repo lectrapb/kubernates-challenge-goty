@@ -14,20 +14,20 @@ services:
       - challenge-net-goty-kubernates 
     command: npm start
 
-  backend_bff:
-    image: gporras/goty-bsf:latest
-    ports:
-      - '5000:5000'
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - GAMES_HOST=http://mocksserver:3100
-    networks:
-      - challenge-net-goty-kubernates 
+  #backend_bff:
+    # image: gporras/goty-bsf:latest
+    # ports:
+    #   - '5000:5000'
+    # environment:
+    #   - SPRING_PROFILES_ACTIVE=prod
+    #   - GAMES_HOST=http://mocksserver:3100
+    # networks:
+    #   - challenge-net-goty-kubernates 
   
   backend_bff-fix:
     image: gporras/goty-bsf-fix:latest
     ports:
-      - '5001:5001'
+      - '5000:5000'
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - GAMES_HOST=http://mocksserver:3100
