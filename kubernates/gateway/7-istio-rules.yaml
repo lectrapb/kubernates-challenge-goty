@@ -1,0 +1,86 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: goty-front-gateway # Name Gateway
+spec:
+  selector:
+    istio: ingressgateway  # Default Istio Gateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: goty-front-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - goty-front-gateway # Name Gateway
+  http:
+  - route:
+    - destination:
+        host: goty-front-service # Este es el nombre del servicio en Kubernetes
+        port:
+          number: 80
+
+#----------------------------------------------------------------
+#Configuration for goty-bff service to manages Canary deployment
+#Author: Giovanny 
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: goty-bff-gateway
+spec:
+  selector:
+    istio: ingressgateway  
+  servers:
+  - port:
+      number: 31400
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: goty-bff-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - goty-bff-gateway
+  http:
+  - route:
+    - destination:
+        host: msvc-backend-bff-service  
+        subset: safe
+      weight: 50  
+    - destination:
+        host: msvc-backend-bff-service 
+        subset: risky
+      weight: 50  
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: dr-msvc-backend-bff-service
+spec:
+  host: msvc-backend-bff-service  
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN 
+  subsets:
+  - name: safe
+    labels:
+      version: safe  
+  - name: risky
+    labels:
+      version: risky 

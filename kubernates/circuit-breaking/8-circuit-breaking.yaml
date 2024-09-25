@@ -1,0 +1,23 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: msvc-backend-bff-service
+  namespace: default
+spec:
+  host: msvc-backend-bff-service
+  subsets:
+    - name: safe
+      labels:
+        version: v1
+    - name: risky
+      labels:
+        version: v2
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 7         # Número de errores 5xx antes de aislar
+      interval: 10s                   # Intervalo para verificar fallas
+      baseEjectionTime: 30s           # Tiempo base que el host será excluido
+      maxEjectionPercent: 50          # Máximo porcentaje de hosts que pueden ser excluidos
+      minHealthPercent: 50            # Porcentaje mínimo de hosts saludables
+

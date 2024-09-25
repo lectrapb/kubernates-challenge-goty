@@ -3,8 +3,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app: mockserver
   name: mockserver
 spec:
   replicas: 1

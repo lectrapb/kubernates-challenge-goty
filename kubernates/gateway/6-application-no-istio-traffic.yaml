@@ -1,0 +1,159 @@
+# To load local files to minikube 
+#minikube mount /home/ingeniero/Documents/gitRepository/udemy/k6/project-final-kubernates-v001/shared/server-mock:/mnt/files
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mockserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mockserver
+  template:
+    metadata:
+      labels:
+        app: mockserver
+    spec:
+      containers:
+      - image: mocksserver/main
+        name: mockserver
+        ports:
+        - containerPort: 3100
+        - containerPort: 3110
+        env:
+          - name: MOCKS_PATH
+            value: /input
+        command: ["npm", "start"]
+        volumeMounts:
+        - name: mocks-volume-1
+          mountPath: /input
+      volumes:
+        - name: mocks-volume-1
+          hostPath: 
+            path: /mnt/files
+            type: Directory
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  msvc-backend-bff
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msvc-backend-bff
+  template:
+    metadata:
+      labels:
+        app: msvc-backend-bff
+        version: safe
+    spec:
+      containers:
+      - image: gporras/goty-bsf-fix:latest
+        name:  msvc-backend-bff
+        ports:
+        - containerPort: 5000
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: prod
+          - name: GAMES_HOST
+            value: http://mockserver:3100  
+        imagePullPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  msvc-backend-bff-risky-version
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: msvc-backend-bff
+  template:
+    metadata:
+      labels:
+        app: msvc-backend-bff
+        version: risky
+    spec:
+      containers:
+      - image: gporras/goty-bsf:latest
+        name:  msvc-backend-bff
+        ports:
+        - containerPort: 5000
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: prod
+          - name: GAMES_HOST
+            value: http://mockserver:3100  
+        imagePullPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: goty-front
+  name:  goty-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: goty-front
+  template:
+    metadata:
+      labels:
+        app: goty-front
+    spec:
+      containers:
+      - image: gporras/goty-front:latest
+        name:  goty-front
+        ports:
+        - containerPort: 80
+        env:
+          - name: URL
+            value: http://192.168.49.2:30643
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mockserver-service
+spec:
+  ports:
+  - name: http
+    port: 3100
+    protocol: TCP
+    targetPort: 3100
+  - name: https
+    port: 3110
+    protocol: TCP
+    targetPort: 3110
+  selector:
+    app: mockserver
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: msvc-backend-bff-service
+spec:
+  ports:
+  - name: http
+    port: 31400
+    targetPort: 5000
+  selector:
+    app: msvc-backend-bff
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: goty-front-service
+spec:
+  ports:
+  - name: http
+    port: 80
+  selector:
+    app: goty-front
+  type: ClusterIP
+
