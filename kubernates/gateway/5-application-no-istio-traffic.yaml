@@ -36,7 +36,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  msvc-backend-bff
+  name: msvc-backend-bff
 spec:
   replicas: 1
   selector:
@@ -50,20 +50,20 @@ spec:
     spec:
       containers:
       - image: gporras/goty-bsf-fix:latest
-        name:  msvc-backend-bff
+        name: msvc-backend-bff
         ports:
         - containerPort: 5000
         env:
           - name: SPRING_PROFILES_ACTIVE
             value: prod
           - name: GAMES_HOST
-            value: http://mockserver:3100  
+            value: http://mockserver-service:3100  
         imagePullPolicy: Always
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  msvc-backend-bff-risky-version
+  name: msvc-backend-bff-risky-version
 spec:
   replicas: 1
   selector:
@@ -77,14 +77,14 @@ spec:
     spec:
       containers:
       - image: gporras/goty-bsf:latest
-        name:  msvc-backend-bff
+        name: msvc-backend-bff
         ports:
         - containerPort: 5000
         env:
           - name: SPRING_PROFILES_ACTIVE
             value: prod
           - name: GAMES_HOST
-            value: http://mockserver:3100  
+            value: http://mockserver-service:3100  
         imagePullPolicy: Always
 
 ---
@@ -93,7 +93,7 @@ kind: Deployment
 metadata:
   labels:
     app: goty-front
-  name:  goty-front
+  name: goty-front
 spec:
   replicas: 1
   selector:
@@ -106,12 +106,12 @@ spec:
     spec:
       containers:
       - image: gporras/goty-front:latest
-        name:  goty-front
+        name: goty-front
         ports:
         - containerPort: 80
         env:
           - name: URL
-            value: http://192.168.49.2:30643
+            value: http://192.168.49.2:30854
 ---
 apiVersion: v1
 kind: Service
